@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>sample</title>
+    <script src="../js/vue.js"></script>
+
+</head>
+<body>
+<div id="app">
+    <input type="text" v-model="n1">
+    <select v-model="opt">
+        <option value="+">+</option>
+        <option value="-">-</option>
+        <option value="*">*</option>
+        <option value="/">/</option>
+    </select>
+    <input type="text" v-model="n2">
+    <input type="button" value="=" @click="cal">
+    <input type="text" v-model="result">
+
+</div>
+
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            n1: 0,
+            n2: 0,
+            result: 0,
+            opt: '+'
+        },
+        methods: {
+            cal(){
+                // 计算
+                // switch (this.opt) {
+                //     case '+':
+                //         this.result = parseFloat(this.n1) + parseFloat(this.n2);
+                //         break;
+                //     case '-':
+                //         this.result = parseFloat(this.n1) - parseFloat(this.n2);
+                //         break;
+                //     case '*':
+                //         this.result = parseFloat(this.n1) * parseFloat(this.n2);
+                //         break;
+                //     case '/':
+                //         this.result = parseFloat(this.n1) / parseFloat(this.n2);
+                //         break;
+                // }
+                //eval explain string return result
+                let str = 'parseFloat(this.n1)' + this.opt + 'parseFloat(this.n2)';
+                this.result = eval(str);
+            }
+        }
+    })
+</script>
+</body>
+</html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>02</title>
+    <!--import vue.js-->
+    <script src="../js/vue.js"></script>
+</head>
+<body>
+<div id="app">
+    <p v-cloak>{{ message }}</p>
+    <!--v-text-->
+    <p v-text="myText"></p>
+    <!--v-html-->
+    <p v-html="myHtml"></p>
+    <!--v-vloak 防止网络速度慢，页面刷新的时候出现html表达式。-->
+    <!--v-on 时间绑定 @-->
+    <input type="button" value="按钮" v-on:click="show" title="这是一个按钮，试着点击一下！">
+    <br/>
+    <!--v-bind绑定属性的指令 myTitle作为一个变量出入进来 :title="myTitle"-->
+    <input type="button" value="v-bind按钮" v-on:click="show" v-bind:title="myTitle + '加上一个表达式'">
+    <br/>
+    <!--跑马灯效果-->
+    <input type="button" value="浪起来" @click="langqilai">
+    <input type="button" value="别浪" @click="nolang">
+    <h4 v-text="paonadeng" style="color: red"></h4>
+
+</div>
+<!--vue js-->
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            message: 'Hello Vue.js!',
+            myText: '这个是一个txt',
+            myHtml: '<h3>这个是一个html</h3>',
+            myTitle: '自己定义的title',
+            paonadeng: '猥琐发育别浪~~！稳住，我们能赢！！！',
+            intervalId: null  //再data上定义定时器ID
+        },
+        methods: {
+            show: function () {
+                alert("hello !")
+            },
+            // 跑马灯效果
+            // 简写
+            langqilai(){
+                // 当前有定时器再运行
+                 if (this.intervalId != null) return;
+                // 自动刷新
+                this.intervalId = setInterval(() => {
+                    // 注意：再vm实例中来调用我们自己定义的属性的时候，必须用this来调用（方法同样）
+                    console.log(this.paonadeng);
+                    // 获取第一个
+                    let vstart = this.paonadeng.substring(0, 1);
+                    // 获取后面所有的字符
+                    let vend = this.paonadeng.substring(1);
+                    // 重新赋值
+                    this.paonadeng = vend + vstart;
+                }, 300)
+
+            },
+            // 停止
+            nolang(){
+                // 停止定时器
+                 clearInterval(this.intervalId);
+                 // 清空值
+                 this.intervalId = null;
+            }
+
+        }
+    })
+</script>
+</body>
+</html>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>sample</title>
+    <script src="../js/vue.js"></script>
+
+</head>
+<body>
+<div id="app">
+    <!--遍历数组-->
+    <p v-for="(item, index) in list">索引值：{{index}} --- 值：{{ item }}</p>
+    <!--遍历对象-->
+    <p v-for="item in obj">{{ item.id }} + {{ item.name }}</p>
+    <!--遍历对象-->
+    <p v-for="(item, key, index)  in obj">key:{{key}}---index:{{index}}---id:{{ item.id }}---name:{{ item.name }}</p>
+    <!--1~10 iterator-->
+    <p v-for="i in 10">{{i}}</p>
+
+
+    <!--v-if 通过flag判断显示不显示，每次都会删除和重新创建一个新的元素-->
+    <!--v-show 通过flag判断显示不显示，每次不会重新创建对象和元素，只会在标签中加入display=none或者不是none-->
+
+</div>
+
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            list: [1,2,3,4,5,6],
+            obj: [{id: 1, name: 'zhangsan'},
+                  {id: 2, name: 'lisi'},
+                  {id: 3, name: 'zhaowu'},
+                  {id: 4, name: 'heliu'},
+            ]
+        }
+    })
+</script>
+</body>
+</html>

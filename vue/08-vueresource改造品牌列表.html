@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Information of Cars' Management</title>
+    <script src="../js/vue.js"></script>
+    <script src="../js/vue-resource.js"></script>
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+
+</head>
+<body>
+<div id="app">
+    <div class="panel panel-warning">
+        <div class="panel-heading">
+            <h2>Phone Information of Management</h2>
+        </div>
+        <div class="panel-body form-inline">
+            <label>
+                Name:
+                <input type="text" v-model="name" class="form-control" placeholder="Input ProductName...">
+            </label>
+            <label>
+                Price:
+                <input type="text" v-model="price" class="form-control" placeholder="Input ProdcutPrice...">
+            </label>
+            <label>
+                Description:
+                <input type="text" v-model="description" class="form-control" placeholder="Input ProdcutDescription...">
+            </label>
+            <input type="button" value="Add" class="btn btn-warning" @click="add">
+            &nbsp;&nbsp;
+            <label v-color="'red'">
+                Search By KeyWords:
+                <input type="text" class="form-control" v-model="keyword" id="search"
+                       v-focus v-color="'red'" placeholder="Input keywords...">
+            </label>
+        </div>
+    </div>
+    <div class="panel-body">
+    <table class="table table-bordered table-hover table-striped">
+        <thead>
+            <tr>
+                <th class="col-lg-1">ProductId</th>
+                <th class="col-lg-2">ProductName</th>
+                <th class="col-lg-2">ProdcutPrice</th>
+                <th class="col-lg-2">ProdcutDescription</th>
+                <th class="col-lg-3">ProdcutOperation</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr v-for="item in search(keyword)" :key="item.productId">
+                <td>{{ item.productId }}</td>
+                <td>{{ item.productName }}</td>
+                <td>{{ item.prodcutPrice }}</td>
+                <td>{{ item.prodcutDescription }}</td>
+                <td>
+                    <input type="button" value="删除" class="btn btn-sm" @click.prevent="del(item.productId)">
+                    <input type="button" value="修改" class="btn btn-sm" @click.prevent="upd(item.productId)">
+                    <input type="button" value="提交" class="btn btn-sm" @click.prevent="commit(item.productId)">
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <div style="width:50%;">
+        <div class="dataTables_paginate paging_bootstrap pagination">
+            <tr id="previousNext">
+                <td  class="prev">
+                    <a @click="prePage" href="#">
+                        <b>上一页</b>
+                    </a>
+                </td>
+                <td><b>&nbsp;&nbsp;/&nbsp;&nbsp;</b></td>
+                <td class="next" onclick="next()">
+                    <a @click="nextPage" href="#">
+                        <b>下一页</b>
+                    </a>
+                </td>
+            </tr>
+        </div>
+    </div>
+    </div>
+</div>
+<script>
+    /***
+     * 自定义常量区域
+     */
+    const url = 'http://localhost:63342/vue20200604/js/00-brandDatas.json';
+
+    /***
+     * vue.js自定义区域
+     */
+    Vue.directive('focus', {
+        inserted:function (el) {
+            el.focus()
+        }
+    })
+    Vue.directive('color',{
+        bind:function (el, binding) {
+            el.style.color = binding.value;
+        }
+    })
+    // Vue.http.options.root = 'http://localhost:63342/vue20200604/js/00-brandDatas.json'
+
+    /***
+     * vue.js Data区域
+     */
+    new Vue({
+        el: '#app',
+        data: {
+            name: '',
+            price: '',
+            description: '',
+            keyword: '',
+            list: [],
+            datas: [],
+            totalPage: [],
+            pageSize: 10,
+            pageNum: 1,
+            currentPage: 0,
+        },
+        // 当 vm 实例的data 和 methods 初始化完毕后，vm会自动执行
+        // 注意：为什么再mounted里面调用不合适？
+        // 这个时候页面上的dom已经加载完毕，显示的时机不好
+        created() {
+            this.getAllList()
+        },
+        mounted(){
+        },
+        methods: {
+            search(keyword){
+                if (keyword === '') {
+                    return this.list
+                }
+                let newList = []
+                newList = this.datas.filter(item => {
+                    if (item.productName.includes(keyword)) {
+                        return item
+                    }
+                })
+                return newList
+            },
+            nextPage() {
+                if (this.currentPage === this.pageNum - 1)
+                    return
+                this.list = this.totalPage[++this.currentPage];
+            },
+            prePage() {
+                if (this.currentPage === 0)
+                    return
+                this.list = this.totalPage[--this.currentPage]
+            },
+            add(){
+                /**
+                 * check
+                 */
+                if (this.name === "" || this.name === undefined || this.name === null) {
+                    alert('ProductName Can Not Be Empty!')
+                    return
+                }
+                if (this.price === "" || this.price === undefined || this.price === null) {
+                    alert('ProdcutPrice Can Not Be Empty!')
+                    return
+                }
+                /**
+                 * 1.添加数据要发送 post请求，其中接收三个参数
+                 * -参数1：URL
+                 * -参数2：要提交到服务器的数据，要以对象的形式
+                 * -参数3：是一个配置对象，要以什么提交表单类型提交过去{emulateJSON: true} 以普通表单格式将数据提交
+                 *        application/x-www.form-urlencoded
+                 */
+                let object = {
+                    productId: "10013",
+                    productName: this.name,
+                    prodcutPrice: this.price,
+                    prodcutDescription: this.description.trim()
+                }
+                console.log(object);
+                this.$http.post(url, JSON.stringify(object), {emulateJSON: true}).then(response => {
+                    if (response.data.status === 0) {
+                        console.log(response.data.data)
+                        this.getAllList()
+                        this.name = ''
+                        this.price = ''
+                        this.description = ''
+                    } else {
+                        alert('Filed to Add Information!')
+                    }
+                }, error => {
+                    console.log("$http.post Error" + error)
+                })
+            },
+            del(id){
+                this.$http.get(url + id).then(response => {
+                    if (response.data.status === 0) {
+                        this.getAllList()
+                    } else {
+                        alert('Filed to Delete Information!')
+                    }
+                }, error => {
+                    console.log('this.$http.del' + error)
+                })
+            },
+            upd(key) {
+            },
+            commit(key){
+            },
+            getAllList(){
+                this.$http.get(url).then(response => {
+                    if(response.data.status === 0){
+                        this.list = response.data.data
+                        this.datas = this.list
+                        this.pageNum = Math.ceil(this.list.length / this.pageSize) || 1
+                        for (let i = 0; i < this.pageNum; i++) {
+                            this.totalPage[i] = this.list.slice(this.pageSize * i, this.pageSize * (i + 1))
+                        }
+                        this.list = this.totalPage[this.currentPage];
+                    } else {
+                        alert('Filed to get information!')
+                    }
+                }, error => {
+                    console.log("$http.get Error" + error)
+                })
+            },
+        }
+    })
+</script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>sample</title>
+    <script src="../js/vue.js"></script>
+    <style>
+        .red{
+            color: red;
+        }
+        .thin{
+            font-weight: 200;
+        }
+        .italic{
+            font-style: italic;
+        }
+        .active{
+            letter-spacing: 0.5em;
+        }
+    </style>
+
+</head>
+<body>
+<div id="app">
+    <!--原生的html直接class中引入calss名字-->
+
+    <!-- 1.v-bind绑定的时候，必须用[]而且，样式名字需要加单引号，否则当作一个变量 -->
+    <!-- 多个样式同时使用的时候用数组传递方式-->
+    <h2 :class="['thin', 'red', 'italic']">这是一个H2</h2>
+
+    <!--2.在数组中使用三元表达式-->
+    <!--定义一个flag，当flag等于true的时候返回active，以外返回空-->
+    <h2 :class="['thin', 'red', flag?'active':'']">这是一个H2</h2>
+
+    <!--3.在数组中嵌套对象 通过类名判断，使用对象代替三元表达式，提高可读性，推荐使用-->
+    <!--定义一个flag，当flag等于true的时候返回active，以外返回空-->
+    <h2 :class="['thin', 'red', {'active': flag}]">这是一个H2</h2>
+
+    <!--4.直接使用对象 不适用数组-->
+    <!--这个时候属性名字不用带引号-->
+    <h2 :class="{red:true, italic:true, active:true, thin:true}">这是一个H2</h2>
+
+    <!--使用内联样式对象-->
+    <h2 :style="{color: 'red'}">这是一个H2</h2>
+    <!--在data里面定义调用-->
+    <!--<h2 :style="[css1]">这是一个H2</h2>-->
+</div>
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            flag: true
+        }
+    })
+</script>
+</body>
+</html>

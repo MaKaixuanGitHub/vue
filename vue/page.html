@@ -1,0 +1,85 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>slidePage</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.js"></script>
+    <style type="text/css">
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 100%;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .content{
+            font-size: 400px
+        }
+        .leftBtn{
+            width: 45px;
+            height: 45px;
+            margin-right: 15px;
+        }
+        .rightBtn{
+            width: 45px;
+            height: 45px;
+            margin-left: 15px;
+        }
+
+    </style>
+</head>
+<body>
+<div id='root'>
+<!--    <div v-if="numberArr.length == 0">{{showMessage}}</div>-->
+    <div class="container"
+         v-for="(item, index) in getCurPageContent(numberArr, curPage, itemNumPerPage)"
+         :key="index">
+        <div class="content">{{item}}</div>
+            <button @click="handleClick('leftBtn')">上一页</button>
+            <span class="pagination">{{curPage}}/{{totalPage}}</span>
+            <button  @click="handleClick('rightBtn')">下一页</button>
+    </div>
+</div>
+<script>
+    new Vue({
+        el: "#root",
+        data(){
+            return {
+                showMessage: 'No number',
+                content:'',
+                numberArr: [1, 2, 3, 4],
+                curPage: 1,
+                totalPage: 1,
+                itemNumPerPage: 1
+            }
+        },
+        mounted() {
+            this.init()
+        },
+        methods:{
+            init(){
+                this.totalPage = Math.ceil(this.numberArr.length / this.itemNumPerPage)
+                this.totalPage = this.totalPage < 1 ? 1 : this.totalPage
+            },
+            getCurPageContent: function(numberArr, curPage, itemNumPerPage){
+                return numberArr.filter(function(element, index){
+                    if(index >= (curPage -1)* itemNumPerPage && index < curPage *itemNumPerPage){
+                        return true
+                    }else{
+                        return false
+                    }
+                })
+            },
+            handleClick: function(arg){
+                if(arg === 'leftBtn'){
+                    this.curPage = this.curPage > 1 ? --this.curPage : this.totalPage
+                }else if (arg === 'rightBtn'){
+                    this.curPage = this.curPage < this.totalPage ? ++this.curPage: 1
+                }
+            }
+        }
+    })
+</script>
+</body>
+</html>

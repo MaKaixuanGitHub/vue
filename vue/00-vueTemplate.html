@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>sample</title>
+    <script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
+
+</head>
+<body>
+<div id="app">
+    <p>{{ message }}</p>
+    <my-Com></my-Com>
+</div>
+
+<script>
+    let com = Vue.extend({
+        template: '<h3>aaaaaa</h3>'
+    })
+    Vue.component('myCom', com)
+    new Vue({
+        el: '#app',
+        data: {
+            message: 'Hello Vue.js!'
+        }
+    })
+</script>
+</body>
+</html>

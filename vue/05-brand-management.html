@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Information of Cars' Management</title>
+    <!--vue-->
+    <script src="../js/vue.js"></script>
+    <script src="../js/bootstrap.min.js"></script>
+    <!--bootstrap-->
+    <link rel="stylesheet" href="../js/bootstrap.min.js">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+    <link rel="stylesheet" href="../css/font-awesome.min.css">
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/bootsnav.css">
+    <link rel="stylesheet" href="../css/animate.css">
+</head>
+<body class="kit-name-head">
+<div id="app">
+    <div class="container">
+    <div >
+        <div>
+            <h3>Information of Cars' Management System</h3>
+        </div>
+        <div class="panel-body form-inline">
+            <label>
+                No:
+                <input type="text" class="form-control" v-model="id">
+            </label>
+            <label>
+                车名:
+                <input type="text" class="form-control" v-model="name" @keyup.enter="add">
+            </label>
+            <label>
+                描述:
+                <input type="text" class="form-control" v-model="comment" @keyup.enter="add">
+            </label>
+            <!--add button-->
+
+            <input type="button" value="添加" class="btn btn-sm" @click.prevent="add" >
+            <label>
+                搜索关键字:
+                <input type="text" class="form-control"
+                       v-model="keyword" id="search" v-focus v-color="'blue'">
+<!--                <input type="button" value="查询" class="btn btn-sm">-->
+            </label>
+
+        </div>
+    </div>
+    <hr/>
+    <table class="table table-bordered table-hover table-striped">
+        <thead class="table table-bordered table-hover table-striped">
+            <tr>
+                <th class="col-lg-1">No</th>
+                <th class="col-lg-2">车名</th>
+                <th class="col-lg-3">时间</th>
+                <th class="col-lg-4">描述</th>
+                <th class="col-lg-5">操作</th>
+            </tr>
+        </thead>
+        <tbody class="table table-bordered table-hover table-striped">
+<!-- 输入关键字搜索功能实现，不不能写si对应，之前的数据都是从list中取到后直接渲染到页面上
+            <tr v-for="item in list" :key="item.id">-->
+            <tr v-for="item in search(keyword)" :key="item.id">
+                <td>
+                    {{ item.id }}
+                </td>
+                <td v-if="item.id === updID">
+                    <input type="text" class="col-lg-10" v-model="txtName">
+                </td>
+                <td v-else>
+                    {{ item.name }}
+                </td>
+                <td>
+                    {{ item.ctime | formatTimer}}
+                </td>
+                <td>
+                    {{ item.comment }}
+                </td>
+                <td>
+                    <!--阻止默认行为，防止刷新页面prevent-->
+                    <input type="button" value="删除" class="btn btn-sm" @click.prevent="del(item.id)">
+                    <input type="button" value="修改" class="btn btn-sm" @click.prevent="upd(item.id)">
+                    <input type="button" value="提交" class="btn btn-sm" @click.prevent="commit(item.id)">
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+
+    <!-- 显示第 1 至 10 项记录，共 57 项 -->
+    <div class="" style="width:25%;" >
+        <div id="DataTables_Table_0_info" class="dataTables_info"><b>每页显示第 1 至 10 项记录，共 {{this.listLength}} 项</b></div>
+    </div>
+    <!-- 第2页 -->
+    <div style="width:50%;">
+        <div class="dataTables_paginate paging_bootstrap pagination">
+            <tr id="previousNext">
+                <td  class="prev">
+                    <a @click="prePage" href="#">
+                        <b>上一页</b>
+                    </a>
+                </td>
+                <td>
+                    <select @click="pageNum" v-model="selValue"
+                            style="width:60px; margin-right:1px;">
+                        <option v-text="selValue" ></option>
+                    </select>
+                </td>
+                <td class="next" onclick="next()">
+                    <a @click="nextPage" href="#">
+                        <b>下一页</b>
+                    </a>
+                </td>
+            </tr>
+        </div>
+    </div>
+    <!-- footer -->
+    <footer class="footer-copyright">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="foot-copyright-content">
+                            <span>Copyright &copy; 2020.MaKaiXuan All rights reserved</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+    </div>
+</div>
+
+<script>
+    /**全局过滤器*****************************************/
+    // param在没有传值的时候，初期默认的值是undefined，比较的时候注意需要初期化
+    // Vue.filter('dateFormat', function (date, param="") {
+    //     let dt = new Date(date)
+    //     let yyyy = dt.getFullYear()
+    //     let mm = dt.getMonth() + 1
+    //     let dd = dt.getDate()
+    //     let hh = dt.getHours()
+    //     let mi = dt.getMinutes()
+    //     let ss = dt.getSeconds()
+    //     return `${yyyy}-${mm}-${dd}`
+    // })
+    /**自定义键盘码修饰符*****************************************/
+    Vue.config.keyCodes.f2=113
+    /**自定义v-指令*****************************************/
+    // 使用Vue.directive() 定义Vue的指令 v-focus
+    // 参数1：指令名称：在定义的时候不需要加v- 前缀,在调用的时候需要加上
+    // 参数2：是一个对象
+    Vue.directive('focus', {
+        //1.bind :每当指令绑定到元素上的时候，会立即执行这个bind函数，只是执行一次
+        // bind:function (el) {
+            //在元素刚绑定的时候，还没有插入到dom元素中去，调用focus方法没有作用，元素只有在插入dom元素后才能获取焦点
+            // el.focus()
+        // },
+        //2.inserted :表示元素插入到dom中的时候，会执行inserted函数
+        inserted:function (el) {
+            el.focus()
+        },
+        //3.updated :当Vnode更新的时候，会执行updated，可能会触发多次
+        updated:function (el) {}
+    })
+    // 定义文字颜色指令
+    Vue.directive('color',{
+        bind:function (el, binding) {
+            // el.style.color = 'red'
+            el.style.color = binding.value;
+        }
+    })
+    /**script************************************************/
+    new Vue({
+        el: '#app',
+        data: {
+            datas: [],
+            id: '',
+            updID: '',
+            txtID: '',
+            txtName: '',
+            name: '',
+            comment: '',
+            totalPage: [],// 所有页面的数据
+            pageSize: 10,// 每页显示数量
+            pageNum: 1,// 共几页
+            currentPage: 0,// 默认当前显示第一页
+            listLength: 18,
+            selValue: '',
+            keyword: '',
+            list: [
+                {id: 1, name: '奔驰', ctime: new Date(), comment: '奔驰奔驰奔驰奔驰奔驰'},
+                {id: 2, name: '宝马', ctime: new Date(), comment: '宝马宝马宝马宝马宝马'},
+                {id: 3, name: '路虎', ctime: new Date(), comment: '路虎路虎路虎路虎路虎'},
+                {id: 4, name: '捷豹', ctime: new Date(), comment: '捷豹捷豹捷豹捷豹'},
+                {id: 5, name: '马自达', ctime: new Date(), comment: '马自达马自达马自达马自达'},
+                {id: 6, name: '本田', ctime: new Date(), comment: '本田本田本田本田本田'},
+                {id: 7, name: '丰田', ctime: new Date(), comment: '丰田丰田丰田丰田丰田'},
+                {id: 8, name: '玛莎拉蒂', ctime: new Date(), comment: '玛莎拉蒂玛莎拉蒂玛莎拉蒂'},
+                {id: 9, name: '兰博基尼', ctime: new Date(), comment: '兰博基尼兰博基尼兰博基尼'},
+                {id: 10, name: 'AE86', ctime: new Date(), comment: '秋名山车神'},
+                {id: 11, name: '五菱宏光', ctime: new Date(), comment: '路虎路虎路虎路虎路虎'},
+                {id: 12, name: '别克', ctime: new Date(), comment: '别克别克别克别克别克'},
+                {id: 13, name: '雪佛兰', ctime: new Date(), comment: '雪佛兰雪佛兰雪佛兰雪佛兰雪佛兰'},
+                {id: 14, name: '福特', ctime: new Date(), comment: '福特福特福特福特福特'},
+                {id: 15, name: '奥迪', ctime: new Date(), comment: '奥迪奥迪奥迪奥迪奥迪'},
+                {id: 16, name: '哈佛', ctime: new Date(), comment: '哈佛哈佛哈佛哈佛哈佛'},
+                {id: 17, name: '比亚迪', ctime: new Date(), comment: '比亚迪比亚迪比亚迪比亚迪比亚迪'},
+                {id: 18, name: '自行车', ctime: new Date(), comment: '自行车自行车自行车自行车自行车'},
+            ],
+        },
+        methods: {
+            init() {
+                // 备份
+                this.datas = this.list
+                // 根据后台数据的条数和每页显示数量算出一共几页,得0时设为1
+                this.pageNum = Math.ceil(this.listLength / this.pageSize) || 1
+                this.selValue = '1'
+                for (let i = 0; i < this.pageNum; i++) {
+                    // 每一页都是一个数组 形如 [['第一页的数据'],['第二页的数据'],['第三页数据']]
+                    // 根据每页显示数量 将后台的数据分割到 每一页,假设pageSize为5， 则第一页是1-5条，
+                    // 即slice(0,5)，第二页是6-10，条即slice(0,5)...
+                    this.totalPage[i] = this.list.slice(this.pageSize * i, this.pageSize * (i + 1))
+                }
+                // 当前显示的内容
+                this.list = this.totalPage[this.currentPage];
+            },
+            search(keyword) {
+
+                // 方法1
+                // let newList = []
+                // this.list.forEach(item => {
+                //     // 如果循环中的字符串包含搜索框中的字符串的话
+                //     if (item.name.indexOf(keyword) !== -1) {
+                //         newList.push(item)
+                //     }
+                // })
+                // return newList
+
+                //方法2
+                // 注意：forEach some filter findIndex
+                let dataList = []
+                // 初期表示的时候
+                if (keyword === '') {
+                    let newList = this.list.filter(item => {
+                        if (item.name.includes(keyword)) {
+                            return item
+                        }
+                    })
+                    return newList
+                // 输入检索条件的时候
+                } else {
+                    let newList = this.datas.filter(item => {
+                        if (item.name.includes(keyword)) {
+                            return item
+                        }
+                    })
+                    return newList
+                }
+
+            },
+            add() {
+                if (this.id.trim() === '') {
+                    alert('ID Can Not Be null!')
+                    return
+                }
+                if (isNaN(this.id)) {
+                    alert('ID is not number!')
+                    return;
+                }
+                if (this.name.trim() === '') {
+                    alert('Name Can Not Be null!')
+                    return
+                }
+                // alert('add')
+                let car = {id: this.id, name: this.name, ctime: new Date(), comment: this.comment}
+                // this.list.push(car)
+                this.datas.push(car)
+                this.listLength++
+                this.list = this.datas
+
+                this.pageNum = Math.ceil(this.listLength / this.pageSize) || 1
+                for (let i = 0; i < this.pageNum; i++) {
+                    this.totalPage[i] = this.list.slice(this.pageSize * i, this.pageSize * (i + 1))
+                }
+                // 当前显示的内容
+                this.list = this.totalPage[this.currentPage];
+                // clear
+                this.id = ''
+                this.name = ''
+            },
+            del(itemId) {
+                // 1.find index
+                // some = forEach
+                this.datas.some((item, index) => {
+                    if (item.id === itemId) {
+                        // del function
+                        this.datas.splice(index, 1)
+                        this.listLength--
+                        this.list = this.datas
+                        this.pageNum = Math.ceil(this.listLength / this.pageSize) || 1
+                        for (let i = 0; i < this.pageNum; i++) {
+                            this.totalPage[i] = this.list.slice(this.pageSize * i, this.pageSize * (i + 1))
+                        }
+                        // 当前显示的内容
+                        this.list = this.totalPage[this.currentPage];
+                        return true
+                    }
+                })
+                // let index = this.list.findIndex((item)=>{
+                //    if (item.id === itemId) {
+                //        return true
+                //    }
+                // })
+                // printOut(index): 0,1,2...
+                // this.list.splice(index, 1)
+            },
+            upd(itemId) {
+                this.updID = itemId
+                // through ID to find name
+                this.list.some((item, index)=>{
+                    if (item.id === itemId) {
+                        this.txtID = itemId
+                        this.txtName = item.name
+                        return true
+                    }
+                })
+            },
+            commit(itemId) {
+                // 当前条数据的button好用
+                if (this.updID !== itemId) {
+                    return
+                }
+                this.updID = ''
+                this.list.some((item, index)=>{
+                    if (item.id === itemId) {
+                        item.id = this.txtID
+                        item.name = this.txtName
+                        return true
+                    }
+                })
+            },
+            // 下一页
+            nextPage() {
+                if (this.currentPage === this.pageNum - 1)
+                    return
+                this.list = this.totalPage[++this.currentPage];
+                this.selValue++
+            },
+            // 上一页
+            prePage() {
+                if (this.currentPage === 0)
+                    return
+                this.list = this.totalPage[--this.currentPage]
+                this.selValue--
+            }
+        },
+        filters: {
+            formatTimer(value) {
+                let date = new Date(value);
+                let yyyy = date.getFullYear();
+                //lpad padStart
+                //rpad padEnd
+                let mm = (date.getMonth() + 1).toString().padStart(2, '0');
+                // MM = MM < 10 ? "0" + MM : MM;
+                let dd = date.getDate().toString().padStart(2, '0');
+                // d = d < 10 ? "0" + d : d;
+                let hh = date.getHours().toString().padStart(2, '0');
+                // h = h < 10 ? "0" + h : h;
+                let mi = date.getMinutes().toString().padStart(2,'0');
+                // m = m < 10 ? "0" + m : m;
+                let ss = date.getSeconds().toString().padStart(2, '0');
+                // s = s < 10 ? "0" + s : s;
+                // return y + "-" + MM + "-" + d + " " + h + ":" + m;
+                return `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`
+            }
+        },
+        mounted() {
+            this.init()
+            let _this = this; // 声明一个变量指向Vue实例this，保证作用域一致
+            this.timer1 = setInterval(() => {
+                _this.timer = new Date(); // 修改数据date
+            }, 1000)
+        },
+        beforeDestroy() {
+            if (this.timer1) {
+                clearInterval(this.timer1); // 在Vue实例销毁前，清除我们的定时器
+            }
+        },
+        watch: {
+
+        }
+    })
+</script>
+</body>
+</html>

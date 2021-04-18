@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>sample</title>
+    <script src="../js/vue.js"></script>
+
+</head>
+<body>
+<div id="app">
+    <!--过滤器的格式 {{name | nameOperation}}-->
+    {{ message | messageFormat('老年', '人')}}
+    <br />
+    {{ message | messageFormat('小二bi', '')}}
+</div>
+
+<script>
+    /*filter 的定义语法*/
+    //过滤器是中间做一层修改
+    Vue.filter('messageFormat', function (data, param, param2) {
+        // return data.replace('少年', '老年')
+        if (param2.trim() !== '') {
+            return data.replace(/少年/g, param+param2)
+        } else {
+            return data.replace(/少年/g, param)
+        }
+
+    })
+    new Vue({
+        el: '#app',
+        data: {
+            message: '我还是曾经那个少年，没有一丝丝改变的少年!'
+        }
+    })
+</script>
+</body>
+</html>
