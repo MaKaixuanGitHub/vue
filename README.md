@@ -105,3 +105,5 @@ v-on 的缩写：是@
 
 - 导入依赖  
   vue-resource.js 下载后放在 vuejs 下面，这个包依赖于 vuejs，实现 ajax 请求
+
+json jsonp 的区别：目前只是知道 jsonp 可以跨域请求。
