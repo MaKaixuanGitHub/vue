@@ -35,7 +35,7 @@
 ### 4.Vue.js 的 MVVM 架构
 
 - Vue 中的 MVVM  
-  ![MVVM](../img/MVVM.png)
+  ![MVVM](img/MVVM.png)
 
 ### 5.框架和库的去区别
 
