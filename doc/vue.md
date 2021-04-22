@@ -97,7 +97,7 @@ export default {
 
 > 这个周期函数在组件销毁之前执行。
 
-<img src="../vue/shengmingzhouqi.png" alt="shengmingzhouqi" style="zoom:50%;" />
+<img src="../img/shengmingzhouqi.png" alt="shengmingzhouqi" style="zoom:50%;" />
 
 ## 二、路由
 
