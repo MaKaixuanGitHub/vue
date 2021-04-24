@@ -244,7 +244,7 @@ const router = new VueRouter({
 >
 > 其中M(数据)是用来保存数据，VM(数据视图)连接数据和视图之间的调度者，V(视图)是前端HTML
 
-![mvvm1](..\img\mvvm1.png)
+<img src="..\img\mvvm1.png" alt="mvvm1" style="zoom: 100%;" />
 
 <img src="..\img\mvvm2.png" alt="mvvm2" style="zoom: 75%;" />
 
